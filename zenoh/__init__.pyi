@@ -853,6 +853,10 @@ class Query:
 
         .. note::
            See the class documentation for important details about which key expression to use for replies.
+
+        .. deprecated:: 1.7.2
+           The ``congestion_control`` and ``priority`` parameters are ignored and will
+           be removed in a future release.
         """
 
     def reply_err(self, payload: _IntoZBytes, *, encoding: _IntoEncoding | None = None):
@@ -874,6 +878,10 @@ class Query:
 
         .. note::
            See the class documentation for important details about which key expression to use for replies.
+
+        .. deprecated:: 1.7.2
+           The ``congestion_control`` and ``priority`` parameters are ignored and will
+           be removed in a future release.
         """
 
     @_unstable

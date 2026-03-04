@@ -187,6 +187,11 @@ See :ref:`publish-subscribe` for more details on the difference between the
 two sample kinds. There is also the :meth:`zenoh.Query.reply_err` method 
 which can be used to send a reply containing error information.
 
+.. note::
+   The ``congestion_control`` and ``priority`` parameters of
+   :meth:`zenoh.Query.reply` and :meth:`zenoh.Query.reply_del` are deprecated,
+   ignored, and will be removed in a future release.
+
 Data is requested from queryables via :meth:`zenoh.Session.get` or via a
 :class:`zenoh.Querier` object. Each request returns zero or more
 :class:`zenoh.Reply` structures — one per queryable that matches the request.

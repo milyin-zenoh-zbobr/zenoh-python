@@ -13,6 +13,7 @@
 #
 import json
 import time
+import warnings
 from typing import List, Tuple
 
 import zenoh
@@ -193,3 +194,35 @@ def test_session():
     run_session_pubsub(peer01, peer02)
     run_session_qrrrep(peer01, peer02)
     close_session(peer01, peer02)
+
+
+def test_query_reply_deprecated_params_warn_and_ignore():
+    zenoh.try_init_log_from_env()
+    peer01, peer02 = open_session(["tcp/127.0.0.1:17448"])
+    keyexpr = "test/session/deprecated"
+    warnings_messages: list[str] = []
+
+    def queryable_callback(query: Query):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", DeprecationWarning)
+            query.reply(
+                keyexpr,
+                b"data",
+                congestion_control=CongestionControl.BLOCK,
+                priority=Priority.DATA_HIGH,
+            )
+            query.reply_del(
+                keyexpr,
+                congestion_control=CongestionControl.BLOCK,
+                priority=Priority.DATA_HIGH,
+            )
+        warnings_messages.extend(str(w.message) if w.message else "" for w in caught)
+
+    queryable = peer01.declare_queryable(keyexpr, queryable_callback, complete=False)
+    time.sleep(SLEEP)
+    replies = list(peer02.get(keyexpr))
+    assert len(replies) >= 1
+    queryable.undeclare()
+    close_session(peer01, peer02)
+    assert any("congestion_control" in msg for msg in warnings_messages)
+    assert any("priority" in msg for msg in warnings_messages)

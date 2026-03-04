@@ -14,6 +14,7 @@
 use std::collections::HashMap;
 
 use pyo3::{
+    exceptions::PyDeprecationWarning,
     prelude::*,
     types::{PyDict, PyIterator, PyList, PyTuple, PyType},
     IntoPyObjectExt,
@@ -144,11 +145,30 @@ impl Query {
         #[pyo3(from_py_with = ZBytes::from_py_opt)] attachment: Option<ZBytes>,
         timestamp: Option<Timestamp>,
     ) -> PyResult<()> {
+        if congestion_control.is_some() || priority.is_some() {
+            let warnings = py.import("warnings")?;
+            if congestion_control.is_some() {
+                warnings.call_method1(
+                    "warn",
+                    (
+                        "`congestion_control` is deprecated and ignored; it will be removed in a future release.",
+                        py.get_type::<PyDeprecationWarning>(),
+                    ),
+                )?;
+            }
+            if priority.is_some() {
+                warnings.call_method1(
+                    "warn",
+                    (
+                        "`priority` is deprecated and ignored; it will be removed in a future release.",
+                        py.get_type::<PyDeprecationWarning>(),
+                    ),
+                )?;
+            }
+        }
         let build = build!(
             self.get_ref()?.reply(key_expr, payload),
             encoding,
-            congestion_control,
-            priority,
             express,
             attachment,
             timestamp,
@@ -179,10 +199,29 @@ impl Query {
         #[pyo3(from_py_with = ZBytes::from_py_opt)] attachment: Option<ZBytes>,
         timestamp: Option<Timestamp>,
     ) -> PyResult<()> {
+        if congestion_control.is_some() || priority.is_some() {
+            let warnings = py.import("warnings")?;
+            if congestion_control.is_some() {
+                warnings.call_method1(
+                    "warn",
+                    (
+                        "`congestion_control` is deprecated and ignored; it will be removed in a future release.",
+                        py.get_type::<PyDeprecationWarning>(),
+                    ),
+                )?;
+            }
+            if priority.is_some() {
+                warnings.call_method1(
+                    "warn",
+                    (
+                        "`priority` is deprecated and ignored; it will be removed in a future release.",
+                        py.get_type::<PyDeprecationWarning>(),
+                    ),
+                )?;
+            }
+        }
         let build = build!(
             self.get_ref()?.reply_del(key_expr),
-            congestion_control,
-            priority,
             express,
             attachment,
             timestamp,
